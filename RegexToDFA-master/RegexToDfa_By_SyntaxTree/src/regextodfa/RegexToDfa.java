@@ -188,18 +188,29 @@ public class RegexToDfa {
                 if (state.getID() == _id) {
                     char stateName = (char) ('A' + control++);
                     state.setStateName(stateName);
-                    System.out.println(_id + " : " + state.getStateName());
                 }
             }
         }
 
-        for(State state : DStates){
-            if (!state.getName().isEmpty()) {
-                System.out.println(state.getStateName() + ": " + state.getName());
-                for (Map.Entry<String, State> entry : state.getAllMoves().entrySet()) {
-                    System.out.print(entry.getKey() + "=" + entry.getValue().getStateName() + " ");
+        for(int _id : IDsortor){
+            for(State state : DStates){ 
+                if (state.getID() == _id) {
+                    if (!state.getName().isEmpty()) {
+                        System.out.println("[NFA] " + state.getName() + " | [DFA] " + state.getStateName() + ": ");
+                        for (Map.Entry<String, State> entry : state.getAllMoves().entrySet()) {
+                            if (!entry.getKey().equals("#")) {
+                                if (entry.getValue().getName().isEmpty()) {
+                                    System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + "{emtry}" + "\n");
+                                }
+                                else{
+                                    System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + entry.getValue().getStateName() + "\n");
+                                }
+                            }
+                        }
+                    }
+                    System.out.println("Acceptable?: " + state.getIsAcceptable());
+                    System.out.println("------------------------------------------------------");
                 }
-                System.out.println("\n");
             }
         }
         
