@@ -1,7 +1,9 @@
 1,a,2,false
-1,b,3,false
-2,a,0,true
-2,b,1,true
-3,a,0,true
-3,b,0,true
+1,b,1,false
+2,a,2,false
+2,b,3,false
+3,a,2,false
+3,b,4,false
+4,a,2,true
+4,b,1,true
 end

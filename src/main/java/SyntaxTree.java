@@ -1,36 +1,25 @@
-package regextodfa;
-
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- * @author @ALIREZA_KAY
- */
 public class SyntaxTree {
 
-    private String regex;
     private BinaryTree bt;
-    private Node root; //the head of raw syntax tree
+    private Node root;
     private int numOfLeafs;
-    private Set<Integer> followPos[];
+    private Set<Integer>[] followPos;
 
     public SyntaxTree(String regex) {
-        this.regex = regex;
         bt = new BinaryTree();
-        
-        /**
-         * generates the binary tree of the syntax tree
-         */
+
         root = bt.generateTree(regex);
         numOfLeafs = bt.getNumberOfLeafs();
         followPos = new Set[numOfLeafs];
         for (int i = 0; i < numOfLeafs; i++) {
             followPos[i] = new HashSet<>();
         }
-        //bt.printInorder(root);
+
         generateNullable(root);
-        generateFirstposLastPos(root);
+        generateFirstPosLastPos(root);
         generateFollowPos(root);
     }
 
@@ -57,19 +46,18 @@ public class SyntaxTree {
         }
     }
 
-    private void generateFirstposLastPos(Node node) {
+    private void generateFirstPosLastPos(Node node) {
         if (node == null) {
             return;
         }
-        if (node instanceof LeafNode) {
-            LeafNode lnode = (LeafNode) node;
-            node.addToFirstPos(lnode.getNum());
-            node.addToLastPos(lnode.getNum());
+        if (node instanceof LeafNode leafNode) {
+            node.addToFirstPos(leafNode.getNum());
+            node.addToLastPos(leafNode.getNum());
         } else {
             Node left = node.getLeft();
             Node right = node.getRight();
-            generateFirstposLastPos(left);
-            generateFirstposLastPos(right);
+            generateFirstPosLastPos(left);
+            generateFirstPosLastPos(right);
             switch (node.getSymbol()) {
                 case "|":
                     node.addAllToFirstPos(left.getFirstPos());
@@ -109,39 +97,23 @@ public class SyntaxTree {
         Node right = node.getRight();
         switch (node.getSymbol()) {
             case "&":
-                Object lastpos_c1[] = left.getLastPos().toArray();
-                Set<Integer> firstpos_c2 = right.getFirstPos();
-                for (int i = 0; i < lastpos_c1.length; i++) {
-                    followPos[(Integer) lastpos_c1[i] - 1].addAll(firstpos_c2);
+                Object[] lastPos_c1 = left.getLastPos().toArray();
+                Set<Integer> firstPos_c2 = right.getFirstPos();
+                for (int i = 0; i < lastPos_c1.length; i++) {
+                    followPos[(Integer) lastPos_c1[i] - 1].addAll(firstPos_c2);
                 }
                 break;
             case "*":
-                Object lastpos_n[] = node.getLastPos().toArray();
-                Set<Integer> firstpos_n = node.getFirstPos();
-                for (int i = 0; i < lastpos_n.length; i++) {
-                    followPos[(Integer) lastpos_n[i] - 1].addAll(firstpos_n);
+                Object[] lastPos_n = node.getLastPos().toArray();
+                Set<Integer> firstPos_n = node.getFirstPos();
+                for (int i = 0; i < lastPos_n.length; i++) {
+                    followPos[(Integer) lastPos_n[i] - 1].addAll(firstPos_n);
                 }
                 break;
         }
         generateFollowPos(node.getLeft());
         generateFollowPos(node.getRight());
 
-    }
-
-    public void show(Node node) {
-        if (node == null) {
-            return;
-        }
-        show(node.getLeft());
-        Object s[] = node.getLastPos().toArray();
-
-        show(node.getRight());
-    }
-
-    public void showFollowPos() {
-        for (int i = 0; i < followPos.length; i++) {
-            Object s[] = followPos[i].toArray();
-        }
     }
 
     public Set<Integer>[] getFollowPos() {
