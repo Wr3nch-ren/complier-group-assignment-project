@@ -7,9 +7,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  *
@@ -175,6 +180,8 @@ public class RegexToDfa {
             }
         }
         System.out.println("Dstate: \n");
+        String fileName = "output.csv";
+        createFile(fileName);
         ArrayList<Integer> IDsortor = new ArrayList<>();
         for(State state : DStates){ 
             if (!state.getName().isEmpty()) {
@@ -186,12 +193,12 @@ public class RegexToDfa {
         for(int _id : IDsortor){
             for(State state : DStates){ 
                 if (state.getID() == _id) {
-                    char stateName = (char) ('A' + control++);
+                    char stateName = (char) ('1' + control++);
                     state.setStateName(stateName);
                 }
             }
         }
-
+        ArrayList<String> forWrite = new ArrayList<>();
         for(int _id : IDsortor){
             for(State state : DStates){ 
                 if (state.getID() == _id) {
@@ -200,9 +207,11 @@ public class RegexToDfa {
                         for (Map.Entry<String, State> entry : state.getAllMoves().entrySet()) {
                             if (!entry.getKey().equals("#")) {
                                 if (entry.getValue().getName().isEmpty()) {
-                                    System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + "{emtry}" + "\n");
+                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + "0" + "\n");
+                                    System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + "{empty}" + "\n");
                                 }
                                 else{
+                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + entry.getValue().getStateName() + "\n");
                                     System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + entry.getValue().getStateName() + "\n");
                                 }
                             }
@@ -213,7 +222,9 @@ public class RegexToDfa {
                 }
             }
         }
-        
+        writeFile(fileName, forWrite);
+        runPython("createExcel.py");
+        runPython("createExcel.py");
         return q0;
     }
 
@@ -224,4 +235,44 @@ public class RegexToDfa {
         return str;
     }
 
+    private static void createFile(String fileName) {
+        try{
+            File file = new File(fileName);
+            if (file.createNewFile()) {
+                System.out.println("File output created.");
+            }else{
+                System.out.println("File already exists.");
+                System.out.println("Writing...");
+            }
+        }catch (IOException e){
+            System.out.println("Error.");
+        }
+    }
+    
+    private static void writeFile(String fileName, ArrayList<String> texts) {
+        try{
+            FileWriter writer = new FileWriter(fileName);
+            BufferedWriter buffer = new BufferedWriter(writer);
+            for (String text : texts) {
+                buffer.write(text);
+            }
+            buffer.write("end");
+            buffer.close();
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Error writing");
+        }
+    }
+
+    private static void runPython(String fileName) {
+        ProcessBuilder processBuilder = new ProcessBuilder("python",fileName);
+        processBuilder.redirectErrorStream(true);
+
+        try {
+            processBuilder.start();
+        } catch (IOException e) {
+            System.out.println("Error run py");
+            e.printStackTrace();
+        }
+    }
 }
