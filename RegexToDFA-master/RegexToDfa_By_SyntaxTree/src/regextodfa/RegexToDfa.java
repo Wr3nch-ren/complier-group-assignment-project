@@ -207,11 +207,11 @@ public class RegexToDfa {
                         for (Map.Entry<String, State> entry : state.getAllMoves().entrySet()) {
                             if (!entry.getKey().equals("#")) {
                                 if (entry.getValue().getName().isEmpty()) {
-                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + "0" + "\n");
+                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + "0" + "," + state.getIsAcceptable() + "\n");
                                     System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + "{empty}" + "\n");
                                 }
                                 else{
-                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + entry.getValue().getStateName() + "\n");
+                                    forWrite.add(state.getStateName() + "," + entry.getKey() + "," + entry.getValue().getStateName() + "," + state.getIsAcceptable() + "\n");
                                     System.out.print(state.getStateName() + " -" + entry.getKey() + "-> " + entry.getValue().getStateName() + "\n");
                                 }
                             }
@@ -223,8 +223,6 @@ public class RegexToDfa {
             }
         }
         writeFile(fileName, forWrite);
-        runPython("createExcel.py");
-        runPython("createExcel.py");
         return q0;
     }
 
@@ -261,18 +259,6 @@ public class RegexToDfa {
             writer.close();
         } catch (IOException e) {
             System.out.println("Error writing");
-        }
-    }
-
-    private static void runPython(String fileName) {
-        ProcessBuilder processBuilder = new ProcessBuilder("python",fileName);
-        processBuilder.redirectErrorStream(true);
-
-        try {
-            processBuilder.start();
-        } catch (IOException e) {
-            System.out.println("Error run py");
-            e.printStackTrace();
         }
     }
 }
